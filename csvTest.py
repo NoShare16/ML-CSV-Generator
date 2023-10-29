@@ -115,7 +115,7 @@ with open('InitialExport.csv', 'r') as csvFile:
                 material_value = extract_value(line['Eigenschaften'], 'Materialunterart', line['EAN'])
 
                 dimmbar_value = extract_value(line['Eigenschaften'], 'Verstellbarkeit und Funktion', line['EAN'])
-                dimmbar_processed = '1' if dimmbar_value and 'dimmbar' in dimmbar_value.lower() else '0'
+                dimmbar_processed = 'ja' if dimmbar_value and 'dimmbar' in dimmbar_value.lower() else ''
 
 
 
