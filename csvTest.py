@@ -1,4 +1,4 @@
-# WICHITG! EINE INITAL CSV IM SELBEN ORDNER WIE DIESES SCRIPT ABLEGEN UND NACH 'InitialExport.csv' BENENNEN
+# WICHITG! EINE INITAL CSV IM SELBEN ORDNER WIE DIESES SCRIPT ABLEGEN UND NACH 'InitialExport.csv' BENENNEN (oder den Pfad beim 'with open' statement anpassen)
 
 
 import csv
@@ -98,6 +98,11 @@ with open('InitialExport.csv', 'r') as csvFile:
 
         for line in reader:
             if line['Hersteller'] == 'blomus':
+
+                if not line['EAN']:  # Check if EAN is empty or not present
+                    print(f"EAN von {line['Produktname']} existiert nicht")
+                    continue
+
                 farbe_extracted = extract_value(line['Eigenschaften'], 'Farbe', line['EAN'])
                 farbe_value = process_farbe_value(replace_special_chars(farbe_extracted)) if farbe_extracted else None
                 breite_value = extract_value(line['Eigenschaften'], 'Breite', line['EAN'])
