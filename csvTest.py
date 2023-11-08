@@ -2,6 +2,7 @@
 
 
 import csv
+import re
 
 def extract_value(eigenschaften, key, ean):
     """Extracts the value for a given key from the eigenschaften string."""
@@ -55,7 +56,11 @@ def extract_value(eigenschaften, key, ean):
 
 
 
-
+#def wrap_content_in_p_tags(description):
+   # """Wraps content that is not inside <p> tags inside one."""
+   # segments = re.split(r'(<p.*?</p>)', description, flags=re.DOTALL)
+   # processed_segments = [seg if seg.startswith('<p') else f'<p>{seg}</p>' for seg in segments if seg.strip()]
+   # return ''.join(processed_segments)
 
 
 
@@ -97,8 +102,8 @@ with open('InitialExport.csv', 'r') as csvFile:
         writer.writeheader()
 
         for line in reader:
-            if line['Hersteller'] == 'blomus':
 
+            if line['Hersteller'] == 'blomus':
                 if not line['EAN']:  # Check if EAN is empty or not present
                     print(f"EAN von {line['Produktname']} existiert nicht")
                     continue
@@ -120,7 +125,16 @@ with open('InitialExport.csv', 'r') as csvFile:
                 material_value = extract_value(line['Eigenschaften'], 'Materialunterart', line['EAN'])
 
                 dimmbar_value = extract_value(line['Eigenschaften'], 'Verstellbarkeit und Funktion', line['EAN'])
-                dimmbar_processed = 'ja' if dimmbar_value and 'dimmbar' in dimmbar_value.lower() else ''
+                dimmbar_processed = '1' if dimmbar_value and 'dimmbar' in dimmbar_value.lower() else '0'
+
+                description_raw = line['Produktbeschreibung']
+                description_processed = description_raw.replace('<br/>', '').replace('<br />', '').replace('<br>', '').replace('<strong>', '').replace('</strong>', '').replace('&nbsp', '')
+                description_processed = re.sub(r'<img[^>]*>', '', description_processed)
+                description_processed = re.sub(r'(<p[^>]*) style="[^"]*"([^>]*>)', r'\1\2', description_processed)
+                description_processed = re.sub(r'<p[^>]*>', '', description_processed)  # Removing start <p> tags
+                description_processed = re.sub(r'</p>', '', description_processed)  # Removing end </p> tags
+                description_processed = f'<p>{description_processed.strip()}</p>'  # Wrapping entire text in one <p> tag
+
 
 
 
@@ -136,9 +150,14 @@ with open('InitialExport.csv', 'r') as csvFile:
                                  'enabled': '0',
                                  'leistung_watt_num': leistung_value,
                                  'lichtstrom_in_lumen': lichtstrom_value,
-                                 'lichtfarbe_kelvin': lichtfarbe_value,
+                                 'lichtfarbe': lichtfarbe_value,
                                  'fassung': fassung_value,
                                  'leuchtmittel_im_lieferumfang': leuchtmittel_processed,
                                  'material': material_value,
                                  'dimmbar': dimmbar_processed,
+                                 'description': description_processed,
+                                 'auslaufartikel': '0',
+                                 'delete': 'no',
+                                 'mark': 'alex',
+                                 'item_state': 'itemstate_2',
                                  })
